@@ -7,7 +7,8 @@ import java.nio.ByteBuffer;
  */
 class WritableImpl implements Writable {
   private final ByteBuffer buffer;
-  private boolean flipped = false;
+  private volatile boolean currentlyWritable = true;
+  private volatile ReadableImpl readable;
 
   /**
    * buffer must be a newly-constructed ByteBuffer that has never had
@@ -22,8 +23,13 @@ class WritableImpl implements Writable {
   public Readable flip() {
     checkUsable("flip");
     buffer.flip();
-    flipped = true;
-    return new ReadableImpl(buffer);
+    currentlyWritable = false;
+    if (readable == null) {
+      readable = new ReadableImpl(buffer, this);
+    } else {
+      readable.setCurrentlyReadable(true);
+    }
+    return readable;
   }
 
   @Override
@@ -33,8 +39,12 @@ class WritableImpl implements Writable {
     return this;
   }
 
+  public void setCurrentlyWritable(final boolean currentlyWritable) {
+    this.currentlyWritable = currentlyWritable;
+  }
+
   private void checkUsable(final String action) {
-    if (flipped) {
+    if (!currentlyWritable) {
       throw new IllegalStateException("Attempt to " + action + ""
           + " flipped Writable");
     }

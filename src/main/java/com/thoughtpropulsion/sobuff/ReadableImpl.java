@@ -8,18 +8,21 @@ import java.nio.ByteBuffer;
 class ReadableImpl implements Readable {
 
   private final ByteBuffer buffer;
-  private boolean flipped = false;
+  private volatile boolean currentlyReadable = true;
+  private final WritableImpl writable;
 
-  ReadableImpl(final ByteBuffer buffer) {
+  ReadableImpl(final ByteBuffer buffer, final WritableImpl writable) {
     this.buffer = buffer;
+    this.writable = writable;
   }
 
   @Override
   public Writable flip() {
     checkUsable("flip");
     buffer.flip();
-    flipped = true;
-    return new WritableImpl(buffer);
+    currentlyReadable = false;
+    writable.setCurrentlyWritable(true);
+    return writable;
   }
 
   @Override
@@ -28,8 +31,12 @@ class ReadableImpl implements Readable {
     return buffer.get();
   }
 
+  public void setCurrentlyReadable(final boolean currentlyReadable) {
+    this.currentlyReadable = currentlyReadable;
+  }
+
   private void checkUsable(final String action) {
-    if (flipped) {
+    if (!currentlyReadable) {
       throw new IllegalStateException("Attempt to " + action + " flipped Readable");
     }
   }
