@@ -29,16 +29,24 @@ public class SoBuffTest {
   void writableToReadable() {
     final ByteBuffer buf = ByteBuffer.allocate(10);
 
-    // There's only one way to create a Writable from a ByteBuffer
+    /*
+     There's only one way to create a Writable from a ByteBuffer
+     and you can't create a Readable (directly) at all (see flip())
+     */
     final Writable writable = Writable.create(buf);
 
     writable.put((byte)5);
 
+    // there is no writable.get() method!
+
     // Flipping gives you a Readable
     final Readable readable = writable.flip();
 
-    final byte got = readable.get();
+    // there is no readable.put(byte) method!
 
+    // if you call methods on the writable here you'll get an exception!
+
+    final byte got = readable.get();
     assertThat(got).isEqualTo((byte)5);
   }
 
