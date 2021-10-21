@@ -7,8 +7,8 @@ import java.nio.ByteBuffer;
  */
 class WritableImpl implements Writable {
   private final ByteBuffer buffer;
-  private volatile boolean currentlyWritable = true;
-  private volatile ReadableImpl readable;
+  private boolean currentlyWritable = true;
+  private ReadableImpl readable;
 
   /**
    * buffer must be a newly-constructed ByteBuffer that has never had

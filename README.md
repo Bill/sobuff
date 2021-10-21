@@ -28,3 +28,8 @@ This repo is a little experiment to see if it's feasible to offer a separate int
 
     final byte got = readable.get();
 ```
+
+## TODO
+
+* For the two interfaces, `Writable`, `Readable`, decide exactly which `ByteBuffer` methods should be available on each. Currently we've just got `put(byte)`, `byte get()` and `flip()` as an experiment.
+* Profit!
